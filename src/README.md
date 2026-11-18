@@ -182,4 +182,6 @@ El archivo local es `2019-Oct.csv.gz` (octubre 2019, comprimido). Spark lee el g
 | Bronze | [src/bronze/README.md](bronze/README.md) | Eventos crudos en Parquet |
 | Silver | [src/silver/README.md](silver/README.md) | Eventos limpios, con catálogos y llave única |
 | Gold | [src/gold/README.md](gold/README.md) | `fact_evento`, `dim_usuario`, `dim_producto` |
-| SageMaker | [src/sagemaker/README.md](sagemaker/README.md) | Perfiles de usuarios con K-Means y endpoint |
+| SageMaker | [src/sagemaker/README.md](sagemaker/README.md) | Perfiles de usuarios con K-Means. La k se elige con la silueta |
+| API | [src/api/README.md](api/README.md) | Modelo publicado, con Swagger y validación |
+| Consulta | [src/consulta/README.md](consulta/README.md) | Pantalla que consume el API |

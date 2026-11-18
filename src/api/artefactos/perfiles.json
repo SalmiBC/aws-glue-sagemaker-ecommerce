@@ -1,0 +1,10 @@
+{
+  "0": {
+    "nombre": "Exploradores",
+    "descripcion": "Miran mucho y compran poco"
+  },
+  "1": {
+    "nombre": "Compradores frecuentes",
+    "descripcion": "Compran varias veces"
+  }
+}

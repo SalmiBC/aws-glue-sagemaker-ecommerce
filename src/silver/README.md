@@ -20,6 +20,18 @@ Script: `job-silver-ecommerce.py`.
 | **RN-008** | Código de tipo de evento | Código numérico del catálogo | Join con `catalogo_tipos_evento.csv`. Tipo desconocido → `codigo_evento` NULL y log |
 | **RN-009** | Etapa del embudo | Cómo avanza el usuario frente al producto | `VIEW`→`VISTA`, `CART`→`CARRITO`, `REMOVE_FROM_CART`→`REMOCION`, `PURCHASE`→`COMPRA`. `flag_compra` = 1 solo en compra |
 | **RN-010** | Nombres de columnas | snake_case | Minúsculas y guiones bajos |
+| **RN-011** | Outliers de precio | Que un precio imposible no mueva los grupos de clientes | Precio negativo → NULL y log. Precio sobre Q3 + 1.5 × IQR → se recorta a ese límite, se marca `flag_outlier_precio` y se anota en el log. La fila no se borra |
+
+## Por qué cada tratamiento
+
+| Situación | Qué se hace | Por qué |
+|---|---|---|
+| Nulos | Se cuentan y se escriben en el log. No se imputa un precio ni un usuario inventado | Un cliente o un producto vacío no se puede adivinar. Inventarlo ensuciaría las fichas |
+| Duplicados | Se deja una sola fila por cliente, visita, instante, tipo y producto | El mismo clic repetido contaría doble una vista o una compra |
+| Tipos | Fecha a timestamp, precio a número, tipo de evento en mayúsculas | Sin un tipo único no se puede sumar ni cruzar con los catálogos |
+| Texto | Marca en mayúsculas, categoría en minúsculas, columnas en snake_case | `view` y `VIEW` son el mismo hecho. El modelo y las consultas no deben verlos distintos |
+| Codificación | El catálogo pone un número al tipo de evento. En el notebook, la categoría del cliente se vuelve número | K-Means solo opera con números |
+| Outliers | Se recorta el precio extremo y se anula el negativo | El ticket promedio entra al agrupamiento. Un precio de error, o uno muy aislado, jalaría un grupo entero |
 
 ## Crear el Job
 

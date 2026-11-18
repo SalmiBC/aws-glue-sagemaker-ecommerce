@@ -262,6 +262,60 @@ def aplicar_rn004_variables_derivadas(df):
     return df
 
 
+def aplicar_rn011_outliers_precio(df):
+    """RN-011: un precio extremo no debe arrastrar el ticket del cliente.
+
+    El precio negativo no es un monto válido: pasa a NULL y se anota.
+    El precio por encima de Q3 + 1.5 * IQR se recorta a ese límite
+    (criterio de Tukey). El evento se conserva. K-Means usa el ticket
+    promedio, y un solo precio absurdo movería los grupos.
+    """
+    logger.info("Aplicando RN-011: Tratamiento de outliers de precio")
+
+    if 'price' not in df.columns:
+        logger.warning("Columna 'price' no encontrada")
+        return df
+
+    negativos = df.filter(F.col('price') < 0).count()
+    if negativos > 0:
+        registrar_error('price', 'Precio negativo pasado a NULL', f'{negativos} registros')
+        df = df.withColumn(
+            'price',
+            F.when(F.col('price') < 0, F.lit(None).cast('double')).otherwise(F.col('price'))
+        )
+
+    cuantiles = df.approxQuantile('price', [0.25, 0.75], 0.01)
+    if len(cuantiles) < 2 or cuantiles[0] is None or cuantiles[1] is None:
+        logger.warning("No se pudo calcular el rango intercuartilico del precio")
+        return df.withColumn('flag_outlier_precio', F.lit(0))
+
+    q1, q3 = cuantiles
+    iqr = q3 - q1
+    limite = q3 + (1.5 * iqr)
+    if limite <= 0:
+        limite = q3
+
+    logger.info(f"Limite de Tukey para price: {limite:.2f} (Q1={q1:.2f}, Q3={q3:.2f})")
+    df = df.withColumn(
+        'flag_outlier_precio',
+        F.when(F.col('price') > F.lit(float(limite)), 1).otherwise(0)
+    )
+    recortados = df.filter(F.col('flag_outlier_precio') == 1).count()
+    if recortados > 0:
+        registrar_error(
+            'price',
+            f'Precio recortado al limite {limite:.2f}. El evento se conserva',
+            f'{recortados} registros'
+        )
+        df = df.withColumn(
+            'price',
+            F.when(F.col('flag_outlier_precio') == 1, F.lit(float(limite))).otherwise(F.col('price'))
+        )
+
+    logger.info(f"Precios recortados: {recortados}")
+    return df
+
+
 def aplicar_rn006_llave_unica(df):
     """RN-006: id_unico del evento usuario-producto."""
     logger.info("Aplicando RN-006: Creacion de llave unica del evento")
@@ -398,6 +452,7 @@ def main():
     df = aplicar_rn009_etapa_funnel(df)
     df = aplicar_rn005_enriquecimiento_categoria(df, df_cat_categoria)
     df = aplicar_rn004_variables_derivadas(df)
+    df = aplicar_rn011_outliers_precio(df)
     df = aplicar_rn006_llave_unica(df)
     df = validaciones_consolidadas(df)
     exportar_log_errores(LOGS_PATH)

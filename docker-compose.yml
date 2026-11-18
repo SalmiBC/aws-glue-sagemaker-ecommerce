@@ -1,0 +1,14 @@
+services:
+  modelo:
+    build: ./src/api
+    ports:
+      - "8000:8000"
+  consulta:
+    build: ./src/consulta
+    ports:
+      - "8080:8080"
+    environment:
+      MODELO_URL: http://modelo:8000
+      MODELO_TIMEOUT: "5"
+    depends_on:
+      - modelo

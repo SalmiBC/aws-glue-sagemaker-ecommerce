@@ -75,13 +75,25 @@ Variables numéricas:
 
 `categoria_principal` se codifica con `LabelEncoder`. Todas las variables se escalan con `StandardScaler`.
 
+## Definición del problema y métrica
+
+| Pregunta | Respuesta |
+|---|---|
+| Tipo de tarea | Agrupamiento (clustering). No es clasificación ni regresión: no existe una etiqueta correcta por cliente |
+| Qué se quiere | Juntar clientes que se parecen en vistas, carrito, compras, ticket y conversión |
+| Métrica principal | Coeficiente de silueta. Va de -1 a 1. Un valor más alto significa grupos compactos y separados |
+| Por qué no F1 | F1 compara una predicción contra una clase verdadera. Aquí no hay clase verdadera |
+| Cómo se elige k | Se prueba k de 2 a 8 sobre una muestra de hasta 8.000 clientes y se queda la k con mayor silueta. La gráfica del codo solo ayuda a mirar el resultado |
+
+Antes de escalar, las variables numéricas se recortan al percentil 1 y al percentil 99. Un cliente con un volumen imposible no debe formar un grupo él solo. La categoría se codifica con `LabelEncoder` y todas las columnas se escalan con `StandardScaler`.
+
 ## Paso 5 — Elegir el número de clusters
 
-El notebook grafica la inercia para k de 2 a 9 (método del codo) y guarda `elbow_curve.png`.
+El notebook imprime la silueta de cada k, elige `K_OPTIMO` y guarda `elbow_curve.png`.
 
 ## Paso 6 — Entrenar K-Means
 
-Valor inicial: `K_OPTIMO = 4`. Ajuste ese número según la gráfica.
+Usa el `K_OPTIMO` del paso 5. No vuelva a fijarlo a mano, salvo que quiera comparar otro k.
 
 ## Paso 7 — Interpretar perfiles
 
@@ -118,17 +130,14 @@ El endpoint cobra por hora aunque no reciba tráfico. Bórrelo al terminar.
 
 El notebook envía cuatro vectores de ejemplo y muestra el cluster, el perfil y la descripción.
 
-## Paso 12 — API REST (opcional)
+## Paso 12 — Publicar el API y la aplicación de consulta
 
-1. Lambda `kmeans-perfiles-ecommerce-invoker`, runtime Python 3.12, rol `GlueETLEcommerceRole`.
-2. El rol ya confía en `lambda.amazonaws.com`. Agregue permiso para `sagemaker:InvokeEndpoint` si la política de SageMaker del rol no lo cubre en su cuenta.
-3. API Gateway REST, nombre `kmeans-perfiles-ecommerce-api`, regional.
-4. Recurso `/predecir`, método POST, integración Lambda.
-5. Stage `prod`.
+El endpoint de SageMaker es opcional y cobra por hora. El servicio que se documenta y se consulta es el API de este repositorio. Usted lo levanta siguiendo las guías. No hay que reescribirlo.
 
-```bash
-curl.exe -X POST https://<api-id>.execute-api.us-east-2.amazonaws.com/prod/predecir -H "Content-Type: application/json" -d "{\"instancias\": [[10, 2, 0, 1, 40.0, 3, 2, 0.1, 0]]}"
-```
+1. [src/api/README.md](../api/README.md). Publica el modelo como API REST con validación de entradas. Swagger queda en `/docs` y el contrato OpenAPI en `/openapi.json`.
+2. [src/consulta/README.md](../consulta/README.md). La aplicación de consulta solo llama a esa URL. No abre el archivo del modelo. Atiende caídas, tiempos de espera y respuestas que no traen una predicción.
+
+El paso 8 del notebook deja los archivos del modelo en la carpeta del cuaderno. El README del API indica dónde copiarlos. Si todavía no ejecutó el notebook, el mismo README tiene un entrenamiento de muestra con el CSV local.
 
 ## Costos y limpieza
 

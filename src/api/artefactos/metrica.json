@@ -1,0 +1,16 @@
+{
+  "metrica": "coeficiente_de_silueta",
+  "justificacion": "No hay etiqueta verdadera por cliente, por eso no se usa F1.",
+  "silueta_por_k": {
+    "2": 0.6624746666667534,
+    "3": 0.46591266986122787,
+    "4": 0.34279767191573207,
+    "5": 0.35824809083048204,
+    "6": 0.37900639976678757,
+    "7": 0.40817050267643956,
+    "8": 0.4091897815225036
+  },
+  "k_elegido": 2,
+  "filas_muestra": 200000,
+  "clientes": 38440
+}
