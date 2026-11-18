@@ -1,0 +1,5 @@
+event_type,codigo,descripcion
+VIEW,1,Vista de producto
+CART,2,Agregar al carrito
+REMOVE_FROM_CART,3,Quitar del carrito
+PURCHASE,4,Compra

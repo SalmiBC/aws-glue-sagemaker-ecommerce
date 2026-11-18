@@ -1,0 +1,16 @@
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+
+# Material del taller de empresas (capturas y PDFs ajenos a este caso)
+docs/
+public/
+src/sagemaker/*.png
+
+# Datos crudos: viven en S3, no en git
+*.csv.gz
+eCommerce*.csv
+2019-*.csv
+*.parquet
