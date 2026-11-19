@@ -21,8 +21,7 @@ Fuente de los datos: [eCommerce behavior data from multi category store](https:/
 2. **Silver.** Se estandarizan fechas y tipos de evento, se eliminan duplicados, se enriquece la categoría del producto y se construye la llave del evento. Las inconsistencias se registran y no se borran.
 3. **Gold.** Esquema estrella: `fact_evento`, `dim_usuario` y `dim_producto`.
 4. **SageMaker.** K-Means sobre el perfil de cada usuario. El número de grupos se elige con el coeficiente de silueta.
-5. **API.** FastAPI publica el modelo, valida las entradas y muestra Swagger en `/docs`. La guía está en [src/api/README.md](src/api/README.md).
-6. **Consulta.** Una pantalla llama a ese API. No carga el modelo. La guía está en [src/consulta/README.md](src/consulta/README.md).
+5. **Publicación en AWS.** Una función y un API dejan encendidas tres páginas: la silueta, Swagger y la pantalla de consulta. No hace falta un endpoint de SageMaker. La guía está en [src/aws/README.md](src/aws/README.md).
 
 ## Cómo está organizado
 
@@ -31,8 +30,9 @@ src/bronze/     job-bronze-ecommerce.py
 src/silver/     job-silver-ecommerce.py
 src/gold/       job-gold-ecommerce.py
 src/sagemaker/  perfiles.ipynb
-src/api/        servicio del modelo, con Swagger
-src/consulta/   pantalla que llama al API
+src/aws/        silueta, Swagger y pantalla de consulta publicados en AWS
+src/api/        la misma consulta, para probarla en la computadora
+src/consulta/   la misma pantalla, para probarla en la computadora
 data/catalogs/  tipos de evento y categorías raíz
 test/           consultas de validación en Athena
 ```

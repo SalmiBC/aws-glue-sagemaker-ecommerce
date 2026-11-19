@@ -14,3 +14,8 @@ src/sagemaker/*.png
 eCommerce*.csv
 2019-*.csv
 *.parquet
+
+# Paquete de despliegue del API
+src/aws/*.zip
+src/aws/url.txt
+src/aws/trust-lambda.json

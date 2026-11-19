@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Coeficiente de silueta</title>
+  <style>
+    body { font-family: Georgia, serif; max-width: 42rem; margin: 2rem auto; padding: 0 1rem; color: #1c1c1c; }
+    nav { display: flex; gap: 1rem; margin-bottom: 1.2rem; }
+    nav a { color: #1f4e79; }
+    h1 { font-size: 1.6rem; }
+    p { line-height: 1.45; }
+    .aviso { background: #f6f1e7; padding: 0.8rem 1rem; }
+    .elegido { background: #e7f6ec; padding: 0.8rem 1rem; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { text-align: left; padding: 0.45rem 0.4rem; border-bottom: 1px solid #ddd; }
+    .barra { height: 0.7rem; background: #1f4e79; }
+    tr.gana td { font-weight: bold; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="{{RAIZ}}/silueta">Silueta</a>
+    <a href="{{RAIZ}}/docs">Swagger</a>
+    <a href="{{RAIZ}}/consulta">Consulta</a>
+  </nav>
+  <h1>Coeficiente de silueta</h1>
+  <p class="aviso">{{JUSTIFICACION}} El coeficiente va de −1 a 1. Mientras más alto, cada cliente queda más cerca de su grupo que de los demás. Esta página muestra el resultado ya calculado. No vuelve a entrenar el modelo.</p>
+  <div class="elegido">
+    <p>Grupos elegidos: <strong>{{K}}</strong></p>
+    <p>Silueta de ese número de grupos: <strong>{{SILUETA}}</strong></p>
+    <p>Muestra: {{FILAS}} eventos de octubre de 2019, {{CLIENTES}} clientes.</p>
+  </div>
+  <table>
+    <thead>
+      <tr><th>Grupos (k)</th><th>Silueta</th><th></th></tr>
+    </thead>
+    <tbody>
+      {{FILAS_TABLA}}
+    </tbody>
+  </table>
+</body>
+</html>

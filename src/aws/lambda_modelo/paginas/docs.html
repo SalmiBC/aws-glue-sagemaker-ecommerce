@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Swagger — perfiles de clientes</title>
+  <link rel="stylesheet" href="{{RAIZ}}/swagger-ui.css">
+  <style>
+    body { margin: 0; font-family: Georgia, serif; }
+    nav { display: flex; gap: 1rem; padding: 0.8rem 1.2rem; background: #f6f1e7; }
+    nav a { color: #1f4e79; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="{{RAIZ}}/silueta">Silueta</a>
+    <a href="{{RAIZ}}/docs">Swagger</a>
+    <a href="{{RAIZ}}/consulta">Consulta</a>
+  </nav>
+  <div id="swagger-ui"></div>
+  <script src="{{RAIZ}}/swagger-ui-bundle.js"></script>
+  <script>
+    window.ui = SwaggerUIBundle({
+      url: "{{RAIZ}}/openapi.json",
+      dom_id: "#swagger-ui",
+      presets: [SwaggerUIBundle.presets.apis],
+      layout: "BaseLayout"
+    });
+  </script>
+</body>
+</html>

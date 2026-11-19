@@ -1,6 +1,8 @@
 # Aplicación de consulta
 
-Esta pantalla pregunta el perfil de un cliente. No abre el archivo del modelo ni importa el entrenamiento. Solo llama al API que usted publicó en [src/api/README.md](../api/README.md).
+La pantalla de la exposición está en AWS y llama al API de la misma dirección. Ábrala desde la pestaña Outputs de la pila `perfiles-ecommerce`. La guía está en [src/aws/README.md](../aws/README.md).
+
+Esta copia local hace lo mismo si quiere probarla en la computadora: no abre el archivo del modelo. Solo llama al API publicado en [src/api/README.md](../api/README.md).
 
 ## Paso 1: Tener el API encendido
 

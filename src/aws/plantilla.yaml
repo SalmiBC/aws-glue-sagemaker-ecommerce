@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Publica la silueta, Swagger y la pantalla de consulta del modelo de perfiles. No crea un endpoint de SageMaker.
+
+Resources:
+  RolFuncion:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: LambdaPerfilesEcommerceRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  FuncionPerfiles:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: perfiles-ecommerce
+      Runtime: python3.12
+      Handler: handler.handler
+      Role: !GetAtt RolFuncion.Arn
+      Timeout: 10
+      MemorySize: 256
+      Code:
+        S3Bucket: proyecto-final-aws-glue-sagemaker-workshop-ecomerse-11-2026
+        S3Key: modelos/kmeans/lambda/perfiles-ecommerce.zip
+
+  PermisoApi:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref FuncionPerfiles
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiPerfiles}/*
+
+  ApiPerfiles:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: perfiles-ecommerce
+      ProtocolType: HTTP
+      Target: !GetAtt FuncionPerfiles.Arn
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+        AllowHeaders:
+          - content-type
+
+Outputs:
+  Silueta:
+    Description: Coeficiente de silueta ya calculado
+    Value: !Sub "${ApiPerfiles.ApiEndpoint}/silueta"
+  Swagger:
+    Description: Documentacion del API
+    Value: !Sub "${ApiPerfiles.ApiEndpoint}/docs"
+  Consulta:
+    Description: Pantalla que llama al API
+    Value: !Sub "${ApiPerfiles.ApiEndpoint}/consulta"

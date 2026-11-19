@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Consulta de perfil de cliente</title>
+  <style>
+    body { font-family: Georgia, serif; max-width: 42rem; margin: 2rem auto; padding: 0 1rem; color: #1c1c1c; }
+    nav { display: flex; gap: 1rem; margin-bottom: 1.2rem; }
+    nav a { color: #1f4e79; }
+    h1 { font-size: 1.6rem; }
+    p, label { line-height: 1.4; }
+    form { display: grid; gap: 0.7rem; }
+    label { display: grid; gap: 0.2rem; }
+    input { font: inherit; padding: 0.4rem 0.5rem; }
+    button { font: inherit; padding: 0.6rem 1rem; width: fit-content; cursor: pointer; }
+    .aviso { background: #f6f1e7; padding: 0.8rem 1rem; }
+    .error { background: #fde8e8; padding: 0.8rem 1rem; }
+    .ok { background: #e7f6ec; padding: 0.8rem 1rem; }
+    code { font-family: Consolas, monospace; font-size: 0.92rem; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="{{RAIZ}}/silueta">Silueta</a>
+    <a href="{{RAIZ}}/docs">Swagger</a>
+    <a href="{{RAIZ}}/consulta">Consulta</a>
+  </nav>
+  <h1>Consulta de perfil de cliente</h1>
+  <p class="aviso">Esta pantalla no tiene el modelo. Cada consulta se envía al API publicado en <code id="destino"></code>.</p>
+  <form id="formulario">
+    <label>Vistas de productos <input name="total_vistas" type="number" step="1" value="20"></label>
+    <label>Veces que agregó al carrito <input name="total_carritos" type="number" step="1" value="4"></label>
+    <label>Veces que quitó del carrito <input name="total_remociones" type="number" step="1" value="1"></label>
+    <label>Compras <input name="total_compras" type="number" step="1" value="2"></label>
+    <label>Ticket promedio <input name="ticket_promedio" type="number" step="0.01" value="45"></label>
+    <label>Visitas <input name="sesiones" type="number" step="1" value="3"></label>
+    <label>Categorías distintas <input name="categorias_distintas" type="number" step="1" value="2"></label>
+    <label>Tasa de conversión <input name="tasa_conversion" type="number" step="0.01" value="0.1"></label>
+    <label>Categoría principal <input name="categoria_principal" type="text" value="electronics"></label>
+    <button type="submit">Consultar perfil</button>
+  </form>
+  <p>Para ver un rechazo, escriba una categoría que el modelo no conoce, por ejemplo <code>no-existe</code>, o un número negativo.</p>
+  <div id="resultado"></div>
+  <script>
+    const RAIZ = "{{RAIZ}}";
+    const URL_MODELO = window.location.origin + RAIZ + "/predecir";
+    const ESPERA_MS = 8000;
+    document.getElementById("destino").textContent = URL_MODELO;
+
+    function escapar(texto) {
+      return String(texto).replace(/[&<>"']/g, (caracter) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[caracter]));
+    }
+
+    function mostrar(clase, texto) {
+      document.getElementById("resultado").innerHTML = '<div class="' + clase + '"><p>' + escapar(texto) + '</p></div>';
+    }
+
+    document.getElementById("formulario").addEventListener("submit", async (evento) => {
+      evento.preventDefault();
+      const datos = new FormData(evento.target);
+      const numero = (nombre) => Number(datos.get(nombre));
+      const payload = {
+        instancias: [{
+          total_vistas: numero("total_vistas"),
+          total_carritos: numero("total_carritos"),
+          total_remociones: numero("total_remociones"),
+          total_compras: numero("total_compras"),
+          ticket_promedio: numero("ticket_promedio"),
+          sesiones: numero("sesiones"),
+          categorias_distintas: numero("categorias_distintas"),
+          tasa_conversion: numero("tasa_conversion"),
+          categoria_principal: String(datos.get("categoria_principal") || "").trim()
+        }]
+      };
+      const controlador = new AbortController();
+      const temporizador = setTimeout(() => controlador.abort(), ESPERA_MS);
+      try {
+        const respuesta = await fetch(URL_MODELO, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          signal: controlador.signal
+        });
+        const texto = await respuesta.text();
+        let cuerpo = null;
+        try {
+          cuerpo = JSON.parse(texto);
+        } catch (error) {
+          mostrar("error", "El API respondió, pero el contenido no es JSON válido.");
+          return;
+        }
+        if (respuesta.status === 422) {
+          mostrar("error", "El API rechazó los datos. Revise números negativos, vacíos o una categoría que el modelo no conoce.");
+          return;
+        }
+        if (!respuesta.ok) {
+          mostrar("error", "El API respondió con un error " + respuesta.status + ".");
+          return;
+        }
+        if (!cuerpo || !Array.isArray(cuerpo.predicciones) || cuerpo.predicciones.length === 0) {
+          mostrar("error", "La respuesta llegó, pero no trae una predicción utilizable.");
+          return;
+        }
+        const perfil = cuerpo.predicciones[0];
+        document.getElementById("resultado").innerHTML =
+          '<div class="ok"><p><strong>' + escapar(perfil.perfil) + '</strong></p><p>' +
+          escapar(perfil.descripcion) + '</p><p>Grupo ' + escapar(perfil.cluster) + '</p></div>';
+      } catch (error) {
+        if (error.name === "AbortError") {
+          mostrar("error", "El servicio del modelo no respondió a tiempo. Intente de nuevo en unos segundos.");
+        } else {
+          mostrar("error", "No se pudo conectar con el servicio del modelo. Compruebe que el API esté publicado.");
+        }
+      } finally {
+        clearTimeout(temporizador);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,10 +1,12 @@
 # Publicar el API del modelo
 
-Este servicio es el modelo consultable. Valida cada entrada y publica Swagger en `/docs` y el contrato OpenAPI en `/openapi.json`.
+La publicación que se usa en la exposición está en AWS: la silueta, Swagger y la pantalla de consulta salen de la misma función. Esa guía está en [src/aws/README.md](../aws/README.md). No hay que dejar esta copia encendida en la computadora.
 
-La aplicación de consulta no vive aquí. Esa guía está en [src/consulta/README.md](../consulta/README.md).
+Lo que sigue sirve para probar el mismo contrato en local. Valida cada entrada y publica Swagger en `/docs` y el contrato OpenAPI en `/openapi.json`.
 
-Cuenta del proyecto: **SalmiBecerra** (`323884514768`). El API se levanta en su máquina. No hace falta crear otro recurso en AWS para cumplir este paso.
+La aplicación de consulta local está en [src/consulta/README.md](../consulta/README.md).
+
+Cuenta del proyecto: **SalmiBecerra** (`323884514768`).
 
 ## Paso 1: Conseguir los archivos del modelo
 

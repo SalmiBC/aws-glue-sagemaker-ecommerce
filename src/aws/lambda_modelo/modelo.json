@@ -1,0 +1,101 @@
+{
+  "columnas": [
+    "total_vistas",
+    "total_carritos",
+    "total_remociones",
+    "total_compras",
+    "ticket_promedio",
+    "sesiones",
+    "categorias_distintas",
+    "tasa_conversion",
+    "categoria_principal"
+  ],
+  "categorias": [
+    "accessories",
+    "apparel",
+    "appliances",
+    "auto",
+    "computers",
+    "construction",
+    "country_yard",
+    "electronics",
+    "furniture",
+    "kids",
+    "medicine",
+    "sin_categoria",
+    "sport",
+    "stationery"
+  ],
+  "media": [
+    4.876170655567117,
+    0.05785639958376691,
+    0.0,
+    0.08699271592091572,
+    18.054779790912374,
+    1.2256243496357961,
+    1.1821279916753382,
+    0.02254403254586408,
+    7.400624349635796
+  ],
+  "escala": [
+    6.11769446313215,
+    0.29190105693129875,
+    1.0,
+    0.3224635415654453,
+    83.17756762762211,
+    0.5675989559607378,
+    0.4597742379725627,
+    0.09212813354382367,
+    3.100696377993464
+  ],
+  "centroides": [
+    [
+      -0.01488768125663814,
+      -0.1173258392857097,
+      0.0,
+      -0.24675533185920068,
+      -0.21233191063746504,
+      -0.03392553108085649,
+      0.000948408172392463,
+      -0.23797159863271017,
+      0.007731296176783282
+    ],
+    [
+      0.20471418655041465,
+      1.6132978223191723,
+      0.0,
+      3.3930278441454216,
+      2.9196859884045394,
+      0.46649557972047273,
+      -0.01304115826919668,
+      3.2722464564098273,
+      -0.10630977252449324
+    ]
+  ],
+  "perfiles": {
+    "0": {
+      "nombre": "Exploradores",
+      "descripcion": "Miran mucho y compran poco"
+    },
+    "1": {
+      "nombre": "Compradores frecuentes",
+      "descripcion": "Compran varias veces"
+    }
+  },
+  "metrica": {
+    "metrica": "coeficiente_de_silueta",
+    "justificacion": "No hay etiqueta verdadera por cliente, por eso no se usa F1.",
+    "silueta_por_k": {
+      "2": 0.6624746666667534,
+      "3": 0.46591266986122787,
+      "4": 0.34279767191573207,
+      "5": 0.35824809083048204,
+      "6": 0.37900639976678757,
+      "7": 0.40817050267643956,
+      "8": 0.4091897815225036
+    },
+    "k_elegido": 2,
+    "filas_muestra": 200000,
+    "clientes": 38440
+  }
+}

@@ -9,7 +9,7 @@ Notebook: `perfiles.ipynb`.
 ## Arquitectura
 
 ```
-Athena (SQL) → S3 gold → SageMaker Studio (K-Means) → Endpoint
+Athena (SQL) → S3 gold → SageMaker Studio (K-Means) → API con silueta, Swagger y consulta
 Glue Catalog db_ecommerce sostiene las tablas que Athena consulta.
 ```
 
@@ -49,12 +49,59 @@ LIMIT 100000;
 
 ## Paso 2 — Configurar SageMaker Studio
 
-1. **AWS Console → SageMaker → Studio**, región **us-east-2**.
-2. Abra o cree un dominio.
-3. Lance **Studio**.
-4. Cree un JupyterLab space con instancia `ml.t3.medium`.
-5. Abra el notebook `perfiles.ipynb` con el kernel `python3 (ipykernel)`.
-6. Use el rol `GlueETLEcommerceRole` como rol de ejecución del dominio o del space.
+SageMaker Studio es el lugar donde se abre el cuaderno y se entrena el agrupamiento. Hay que dejarlo listo una sola vez. Mientras el espacio JupyterLab esté en **Running**, se cobra aunque no esté ejecutando celdas. Al terminar, deténgalo.
+
+Antes de crear nada, mire la esquina superior derecha de la consola. La región tiene que ser **Ohio (us-east-2)**. Si dice Norte de Virginia, cámbiela. Un dominio creado en otra región no ve este bucket.
+
+### 2.1 Entrar a Dominios
+
+1. En el buscador de la consola escriba **SageMaker** y abra **Amazon SageMaker AI**.
+2. En el menú izquierdo abra **Dominios** (en inglés, **Domains**).
+3. Mire la lista.
+   - Si ya hay un dominio en estado **InService** o **Listo**, no cree otro. Siga en **2.3**.
+   - Si la lista está vacía, siga en **2.2**.
+
+### 2.2 Crear el dominio
+
+1. Pulse **Crear dominio** (**Create domain**).
+2. Elija **Configuración rápida** (**Quick setup**). Sirve para una sola persona. No use la configuración estándar.
+3. Escriba el nombre: `dominio-ecommerce-salmi`.
+4. En el rol de ejecución:
+   - Si aparece `GlueETLEcommerceRole`, selecciónelo. Ese rol ya puede leer el bucket, Athena y Glue, y SageMaker puede asumirlo.
+   - Si no aparece, elija **Crear un rol nuevo**. Anote el nombre que genere AWS, parecido a `AmazonSageMaker-ExecutionRole-...`. Después, en IAM, ábralo y adjunte `AmazonS3FullAccess`, `AmazonAthenaFullAccess` y `AWSGlueConsoleFullAccess`. Sin eso el cuaderno no lee las tablas de oro.
+5. Deje la red como viene en la configuración rápida. Así el cuaderno puede instalar librerías.
+6. Pulse **Crear dominio** y espere. Puede tardar de 5 a 15 minutos. No cierre la pestaña. Siga solo cuando el estado sea **InService**.
+
+### 2.3 Abrir Studio
+
+1. En **Dominios**, pulse el nombre del dominio.
+2. Abra la pestaña **Perfiles de usuario** (**User profiles**). La configuración rápida ya creó uno.
+3. En ese perfil pulse **Lanzar** (**Launch**) y luego **Studio**.
+4. Espere a que cargue la página de inicio de Studio. La primera vez tarda un par de minutos.
+
+### 2.4 Crear el espacio de JupyterLab
+
+1. En el inicio de Studio elija **JupyterLab**.
+2. Pulse **Crear espacio de JupyterLab** (**Create JupyterLab space**).
+3. Nombre: `espacio-perfiles-ecommerce`.
+4. Confirme la creación. Todavía no está encendido.
+5. En la configuración del espacio elija la instancia **ml.t3.medium**. No use una instancia mayor: esta alcanza para el cuaderno y es la más barata de este flujo.
+6. Deje el almacenamiento en el valor que propone la consola.
+7. Pulse **Ejecutar espacio** (**Run space**). Espere a que el estado pase a **Running**. Suele tardar de 2 a 5 minutos.
+8. Pulse **Abrir JupyterLab** (**Open JupyterLab**).
+
+### 2.5 Abrir el cuaderno
+
+1. En JupyterLab, menú **File → Upload** y suba `perfiles.ipynb`. También puede arrastrar el archivo a la lista de la izquierda.
+2. Ábralo con doble clic.
+3. Arriba a la derecha pulse el nombre del kernel y elija **Python 3 (ipykernel)**. Si pide instalar el kernel, acepte.
+4. Ya puede ejecutar las celdas desde el paso 3. No ejecute todavía el despliegue del endpoint del paso 10: ese recurso cobra por hora hasta que se borre.
+
+### 2.6 Apagarlo al terminar
+
+1. Vuelva a la pestaña del espacio `espacio-perfiles-ecommerce`.
+2. Pulse **Detener** (**Stop**).
+3. El dominio puede quedarse creado. Lo que cobra por hora es el espacio mientras está en **Running**.
 
 ## Paso 3 — Leer datos desde Athena
 
@@ -130,14 +177,13 @@ El endpoint cobra por hora aunque no reciba tráfico. Bórrelo al terminar.
 
 El notebook envía cuatro vectores de ejemplo y muestra el cluster, el perfil y la descripción.
 
-## Paso 12 — Publicar el API y la aplicación de consulta
+## Paso 12 — Publicar silueta, Swagger y la consulta
 
-El endpoint de SageMaker es opcional y cobra por hora. El servicio que se documenta y se consulta es el API de este repositorio. Usted lo levanta siguiendo las guías. No hay que reescribirlo.
+No cree el endpoint del paso 10 para la exposición. Cobra por hora aunque nadie lo use.
 
-1. [src/api/README.md](../api/README.md). Publica el modelo como API REST con validación de entradas. Swagger queda en `/docs` y el contrato OpenAPI en `/openapi.json`.
-2. [src/consulta/README.md](../consulta/README.md). La aplicación de consulta solo llama a esa URL. No abre el archivo del modelo. Atiende caídas, tiempos de espera y respuestas que no traen una predicción.
+La silueta, Swagger y la pantalla de consulta se publican con la pila de CloudFormation descrita en [src/aws/README.md](../aws/README.md). Esas tres direcciones quedan encendidas. La pantalla llama al API; no abre el archivo del modelo. Swagger muestra el contrato y rechaza con 422 un número negativo o una categoría que el modelo no conoce.
 
-El paso 8 del notebook deja los archivos del modelo en la carpeta del cuaderno. El README del API indica dónde copiarlos. Si todavía no ejecutó el notebook, el mismo README tiene un entrenamiento de muestra con el CSV local.
+El paso 8 del notebook deja los archivos del modelo en la carpeta del cuaderno. Si vuelve a entrenar, `src/aws/extraer_modelo.py` actualiza el JSON que usa la función. Si todavía no ejecutó el notebook, el repositorio ya trae la muestra de octubre: k = 2 y silueta 0.6625.
 
 ## Costos y limpieza
 
