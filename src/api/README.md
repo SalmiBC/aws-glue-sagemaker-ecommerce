@@ -51,8 +51,12 @@ En Swagger, `POST /predecir` muestra los campos obligatorios y los límites. Un 
 
 ## Paso 4: Probar una consulta válida
 
+En Swagger hay dos ejemplos: **Mira y no compra** y **Compra varias veces**. El primero responde Exploradores. El segundo, Compradores frecuentes.
+
+El grupo lo mueven las compras y el carrito. En la muestra casi nadie compraba, así que 2 compras o 4 carritos ya quedan del lado de Compradores frecuentes. Cambiar solo las vistas, el ticket o la categoría no alcanza para salir de ese grupo.
+
 ```bash
-curl.exe -X POST http://127.0.0.1:8000/predecir -H "Content-Type: application/json" -d "{\"instancias\":[{\"total_vistas\":20,\"total_carritos\":4,\"total_remociones\":1,\"total_compras\":2,\"ticket_promedio\":45.5,\"sesiones\":3,\"categorias_distintas\":2,\"tasa_conversion\":0.1,\"categoria_principal\":\"electronics\"}]}"
+curl.exe -X POST http://127.0.0.1:8000/predecir -H "Content-Type: application/json" -d "{\"instancias\":[{\"total_vistas\":30,\"total_carritos\":0,\"total_remociones\":0,\"total_compras\":0,\"ticket_promedio\":0,\"sesiones\":4,\"categorias_distintas\":3,\"tasa_conversion\":0,\"categoria_principal\":\"electronics\"}]}"
 ```
 
 La respuesta trae `cluster`, `perfil` y `descripcion`.

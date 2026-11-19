@@ -28,17 +28,22 @@
   <h1>Consulta de perfil de cliente</h1>
   <p class="aviso">Esta pantalla no tiene el modelo. Cada consulta se envía al API publicado en <code id="destino"></code>.</p>
   <form id="formulario">
-    <label>Vistas de productos <input name="total_vistas" type="number" step="1" value="20"></label>
-    <label>Veces que agregó al carrito <input name="total_carritos" type="number" step="1" value="4"></label>
-    <label>Veces que quitó del carrito <input name="total_remociones" type="number" step="1" value="1"></label>
-    <label>Compras <input name="total_compras" type="number" step="1" value="2"></label>
-    <label>Ticket promedio <input name="ticket_promedio" type="number" step="0.01" value="45"></label>
-    <label>Visitas <input name="sesiones" type="number" step="1" value="3"></label>
-    <label>Categorías distintas <input name="categorias_distintas" type="number" step="1" value="2"></label>
-    <label>Tasa de conversión <input name="tasa_conversion" type="number" step="0.01" value="0.1"></label>
+    <label>Vistas de productos <input name="total_vistas" type="number" step="1" value="30"></label>
+    <label>Veces que agregó al carrito <input name="total_carritos" type="number" step="1" value="0"></label>
+    <label>Veces que quitó del carrito <input name="total_remociones" type="number" step="1" value="0"></label>
+    <label>Compras <input name="total_compras" type="number" step="1" value="0"></label>
+    <label>Ticket promedio <input name="ticket_promedio" type="number" step="0.01" value="0"></label>
+    <label>Visitas <input name="sesiones" type="number" step="1" value="4"></label>
+    <label>Categorías distintas <input name="categorias_distintas" type="number" step="1" value="3"></label>
+    <label>Tasa de conversión <input name="tasa_conversion" type="number" step="0.01" value="0"></label>
     <label>Categoría principal <input name="categoria_principal" type="text" value="electronics"></label>
     <button type="submit">Consultar perfil</button>
   </form>
+  <p>
+    <button type="button" id="btn-explorador">Probar explorador</button>
+    <button type="button" id="btn-comprador">Probar comprador</button>
+  </p>
+  <p>En el entrenamiento casi nadie compraba. Por eso el grupo cambia con las compras y el carrito, no con las vistas ni con la categoría. El explorador tiene 0 compras y 0 carritos. El comprador tiene 3 compras. Si deja 2 compras o 4 carritos, seguirá viendo el mismo perfil aunque mueva los demás números.</p>
   <p>Para ver un rechazo, escriba una categoría que el modelo no conoce, por ejemplo <code>no-existe</code>, o un número negativo.</p>
   <div id="resultado"></div>
   <script>
@@ -56,6 +61,31 @@
     function mostrar(clase, texto) {
       document.getElementById("resultado").innerHTML = '<div class="' + clase + '"><p>' + escapar(texto) + '</p></div>';
     }
+
+    const ejemplos = {
+      explorador: {
+        total_vistas: 30, total_carritos: 0, total_remociones: 0, total_compras: 0,
+        ticket_promedio: 0, sesiones: 4, categorias_distintas: 3, tasa_conversion: 0,
+        categoria_principal: "electronics"
+      },
+      comprador: {
+        total_vistas: 12, total_carritos: 2, total_remociones: 0, total_compras: 3,
+        ticket_promedio: 40, sesiones: 4, categorias_distintas: 2, tasa_conversion: 0.25,
+        categoria_principal: "electronics"
+      }
+    };
+
+    function cargarEjemplo(nombre) {
+      const valores = ejemplos[nombre];
+      const formulario = document.getElementById("formulario");
+      for (const campo of Object.keys(valores)) {
+        formulario.elements[campo].value = valores[campo];
+      }
+      formulario.requestSubmit();
+    }
+
+    document.getElementById("btn-explorador").addEventListener("click", () => cargarEjemplo("explorador"));
+    document.getElementById("btn-comprador").addEventListener("click", () => cargarEjemplo("comprador"));
 
     document.getElementById("formulario").addEventListener("submit", async (evento) => {
       evento.preventDefault();

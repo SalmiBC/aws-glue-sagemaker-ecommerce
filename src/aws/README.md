@@ -35,9 +35,9 @@ A partir de ese momento las páginas siguen disponibles. No hay un espacio de St
 
 En **Silueta**, señale la fila de 2 grupos y el número 0.6625. Diga que se probaron de 2 a 8 grupos y se quedó el más alto, porque no existe una etiqueta verdadera por cliente.
 
-En **Swagger**, abra `POST /predecir`, pulse **Try it out** y **Execute** con el ejemplo. Luego cambie `total_vistas` a `-1` y muestre el 422.
+En **Swagger**, abra `POST /predecir` y en los ejemplos elija **Mira y no compra**, luego **Compra varias veces**. El grupo cambia. Después ponga `total_vistas` en `-1` y muestre el 422.
 
-En **Consulta**, pulse **Consultar perfil** con los valores que ya vienen. Después escriba `no-existe` en la categoría y vuelva a consultar: la pantalla dice que el API rechazó los datos.
+En **Consulta**, pulse **Probar explorador** y después **Probar comprador**. Si solo cambia las vistas o la categoría y deja 2 compras o 4 carritos, el perfil sigue igual: en el entrenamiento casi nadie compraba, y esas dos cifras ya están del lado de Compradores frecuentes. Luego escriba `no-existe` en la categoría: la pantalla dice que el API rechazó los datos.
 
 ## Volver a publicar si cambia el modelo
 

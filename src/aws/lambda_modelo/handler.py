@@ -138,18 +138,39 @@ def contrato(evento):
                                         }
                                     },
                                 },
-                                "example": {
-                                    "instancias": [{
-                                        "total_vistas": 20,
-                                        "total_carritos": 4,
-                                        "total_remociones": 1,
-                                        "total_compras": 2,
-                                        "ticket_promedio": 45.5,
-                                        "sesiones": 3,
-                                        "categorias_distintas": 2,
-                                        "tasa_conversion": 0.1,
-                                        "categoria_principal": "electronics",
-                                    }]
+                                "examples": {
+                                    "explorador": {
+                                        "summary": "Mira y no compra",
+                                        "value": {
+                                            "instancias": [{
+                                                "total_vistas": 30,
+                                                "total_carritos": 0,
+                                                "total_remociones": 0,
+                                                "total_compras": 0,
+                                                "ticket_promedio": 0,
+                                                "sesiones": 4,
+                                                "categorias_distintas": 3,
+                                                "tasa_conversion": 0,
+                                                "categoria_principal": "electronics",
+                                            }]
+                                        },
+                                    },
+                                    "comprador": {
+                                        "summary": "Compra varias veces",
+                                        "value": {
+                                            "instancias": [{
+                                                "total_vistas": 12,
+                                                "total_carritos": 2,
+                                                "total_remociones": 0,
+                                                "total_compras": 3,
+                                                "ticket_promedio": 40,
+                                                "sesiones": 4,
+                                                "categorias_distintas": 2,
+                                                "tasa_conversion": 0.25,
+                                                "categoria_principal": "electronics",
+                                            }]
+                                        },
+                                    },
                                 },
                             }
                         },

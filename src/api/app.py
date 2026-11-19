@@ -1,10 +1,11 @@
 import json
 from functools import lru_cache
 from pathlib import Path
+from typing import Annotated
 
 import joblib
 import numpy as np
-from fastapi import FastAPI, HTTPException
+from fastapi import Body, FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
 BASE = Path(__file__).resolve().parent
@@ -22,15 +23,39 @@ app = FastAPI(
 
 
 class PerfilEntrada(BaseModel):
-    total_vistas: int = Field(ge=0, le=1_000_000, examples=[20])
-    total_carritos: int = Field(ge=0, le=1_000_000, examples=[4])
-    total_remociones: int = Field(ge=0, le=1_000_000, examples=[1])
-    total_compras: int = Field(ge=0, le=1_000_000, examples=[2])
-    ticket_promedio: float = Field(ge=0, le=1_000_000, examples=[45.5])
-    sesiones: int = Field(ge=0, le=1_000_000, examples=[3])
-    categorias_distintas: int = Field(ge=0, le=100, examples=[2])
-    tasa_conversion: float = Field(ge=0, le=100, examples=[0.1])
+    total_vistas: int = Field(ge=0, le=1_000_000, examples=[30])
+    total_carritos: int = Field(ge=0, le=1_000_000, examples=[0])
+    total_remociones: int = Field(ge=0, le=1_000_000, examples=[0])
+    total_compras: int = Field(ge=0, le=1_000_000, examples=[0])
+    ticket_promedio: float = Field(ge=0, le=1_000_000, examples=[0])
+    sesiones: int = Field(ge=0, le=1_000_000, examples=[4])
+    categorias_distintas: int = Field(ge=0, le=100, examples=[3])
+    tasa_conversion: float = Field(ge=0, le=100, examples=[0])
     categoria_principal: str = Field(min_length=1, max_length=80, examples=["electronics"])
+
+
+EXPLORADOR = {
+    "total_vistas": 30,
+    "total_carritos": 0,
+    "total_remociones": 0,
+    "total_compras": 0,
+    "ticket_promedio": 0,
+    "sesiones": 4,
+    "categorias_distintas": 3,
+    "tasa_conversion": 0,
+    "categoria_principal": "electronics",
+}
+COMPRADOR = {
+    "total_vistas": 12,
+    "total_carritos": 2,
+    "total_remociones": 0,
+    "total_compras": 3,
+    "ticket_promedio": 40,
+    "sesiones": 4,
+    "categorias_distintas": 2,
+    "tasa_conversion": 0.25,
+    "categoria_principal": "electronics",
+}
 
 
 class Solicitud(BaseModel):
@@ -84,7 +109,21 @@ def salud():
 
 
 @app.post("/predecir", response_model=Respuesta, tags=["prediccion"])
-def predecir(solicitud: Solicitud):
+def predecir(
+    solicitud: Annotated[
+        Solicitud,
+        Body(openapi_examples={
+            "explorador": {
+                "summary": "Mira y no compra",
+                "value": {"instancias": [EXPLORADOR]},
+            },
+            "comprador": {
+                "summary": "Compra varias veces",
+                "value": {"instancias": [COMPRADOR]},
+            },
+        }),
+    ],
+):
     try:
         artefactos = cargar_modelo()
     except FileNotFoundError as exc:
